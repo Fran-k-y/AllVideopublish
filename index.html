@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AllVideo Studio Lite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0e;
+            --card-bg: #1a1a1c;
+            --accent: #ff3e3e;
+            --accent-hover: #e63535;
+            --text-main: #ffffff;
+            --text-dim: #8e8e93;
+            --border: #2c2c2e;
+            --input-bg: #000000;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            padding: 32px 24px 24px;
+            text-align: center;
+            background: linear-gradient(to bottom, #1f1f22, var(--card-bg));
+        }
+        
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .brand-lite {
+            font-size: 0.7rem;
+            background: var(--accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header p { 
+            font-size: 0.85rem; 
+            color: var(--text-dim); 
+            margin-top: 8px; 
+            font-weight: 500;
+        }
+
+        .nav-tabs {
+            display: flex;
+            padding: 0 24px;
+            gap: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            padding: 12px 4px;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active { color: var(--text-main); }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .content { padding: 24px; }
+        .panel { display: none; }
+        .panel.active { display: block; animation: slideUp 0.4s ease-out; }
+
+        .input-group { margin-bottom: 20px; }
+        
+        label { 
+            display: block; 
+            font-size: 0.7rem; 
+            font-weight: 700; 
+            color: var(--text-dim); 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        input:focus { 
+            outline: none; 
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 62, 62, 0.1);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .log-container {
+            background: #050505;
+            height: 240px;
+            border-radius: 12px;
+            padding: 16px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .log-entry { margin-bottom: 6px; color: #d1d1d1; }
+        .log-ts { color: var(--text-dim); margin-right: 8px; }
+        .log-success { color: #22c55e; }
+        .log-error { color: #ef4444; }
+
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <div class="brand-name">
+            ALLVIDEO <span style="font-weight: 400; opacity: 0.8;">STUDIO</span>
+            <span class="brand-lite">Lite</span>
+        </div>
+        <p>Roblox Content Publishing Suite</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('universe', this)">Universe</button>
+        <button class="tab-btn" onclick="switchTab('place', this)">Places</button>
+        <button class="tab-btn" onclick="switchTab('logs', this)">Console</button>
+    </div>
+
+    <div class="content">
+        <div id="universe" class="panel active">
+            <div class="input-group">
+                <label>Security Cookie</label>
+                <input type="password" id="u-cookie" placeholder="Paste .ROBLOSECURITY here">
+            </div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Amount</label>
+                    <input type="number" id="u-count" value="1" min="1">
+                </div>
+                <div class="input-group">
+                    <label>Template</label>
+                    <input type="text" id="u-template" value="95206881">
+                </div>
+            </div>
+            <button class="btn-primary" id="btn-u" onclick="startExecution('universe')">Initialize Create</button>
+        </div>
+
+        <div id="place" class="panel">
+            <div class="input-group">
+                <label>Target Universe ID</label>
+                <input type="text" id="p-universe" placeholder="e.g. 5928103">
+            </div>
+            <button class="btn-primary" id="btn-p" onclick="startExecution('place')">Deploy Sub-Places</button>
+        </div>
+
+        <div id="logs" class="panel">
+            <div id="log-box" class="log-container"></div>
+            <button class="btn-primary" style="background: #2c2c2e; margin-top: 15px;" onclick="clearLogs()">Clear Console</button>
+        </div>
+    </div>
+    
+    <footer>&copy; 2026 AllVideo Studio | Remote Worker Active</footer>
+</div>
+
+<script>
+    // YOUR LIVE WORKER URL
+    const WORKER_URL = 'https://allvideo-api.ninoyumul0.workers.dev/';
+
+    function switchTab(id, btn) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function addLog(msg, type = 'info') {
+        const box = document.getElementById('log-box');
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        const timestamp = new Date().toLocaleTimeString([], { hour12: false });
+        let typeClass = type === 'success' ? 'log-success' : (type === 'error' ? 'log-error' : '');
+        entry.innerHTML = `<span class="log-ts">[${timestamp}]</span><span class="${typeClass}">${msg}</span>`;
+        box.prepend(entry);
+    }
+
+    function clearLogs() {
+        document.getElementById('log-box').innerHTML = '';
+        addLog("Console cleared.", "info");
+    }
+
+    async function startExecution(type) {
+        const cookie = document.getElementById('u-cookie').value;
+        const count = document.getElementById('u-count').value;
+        
+        if(!cookie) {
+            alert("Credentials missing!");
+            return;
+        }
+        
+        addLog(`System: Sending request to Worker...`, "info");
+        switchTab('logs', document.querySelectorAll('.tab-btn')[2]);
+
+        try {
+            const response = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: type, 
+                    cookie: cookie,
+                    amount: count
+                })
+            });
+            const data = await response.json();
+            
+            if(data.ok) {
+                addLog(`Worker Response: ${data.message}`, "success");
+            } else {
+                addLog(`Worker Error: ${data.message}`, "error");
+            }
+        } catch (e) {
+            addLog(`Connection Failed: Make sure your worker is deployed.`, "error");
+        }
+    }
+
+    addLog("AllVideo Studio Lite initialized.", "success");
+</script>
+</body>
+</html>
