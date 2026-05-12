@@ -25,9 +25,10 @@
         input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: white; font-family: inherit; }
         input:focus { outline: none; border-color: var(--accent); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-primary { width: 100%; padding: 16px; background: var(--accent); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-primary { width: 100%; padding: 16px; background: var(--accent); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-primary:active { transform: scale(0.98); }
         .btn-stop { background: #2c2c2e; margin-top: 8px; }
-        .log-container { background: #050505; height: 250px; border-radius: 12px; padding: 15px; font-family: monospace; font-size: 0.75rem; overflow-y: auto; border: 1px solid var(--border); margin-top: 10px; display: flex; flex-direction: column-reverse; }
+        .log-container { background: #050505; height: 250px; border-radius: 12px; padding: 15px; font-family: 'Courier New', monospace; font-size: 0.75rem; overflow-y: auto; border: 1px solid var(--border); margin-top: 10px; display: flex; flex-direction: column-reverse; }
         .log-entry { margin-bottom: 5px; line-height: 1.4; }
         .log-success { color: #22c55e; }
         .log-error { color: #ff4757; }
@@ -39,7 +40,7 @@
 <div class="app-container">
     <div class="header">
         <div class="brand-name">ALLVIDEO STUDIO <span class="brand-lite">Lite</span></div>
-        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 5px;">Roblox Mass Publisher</p>
+        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 5px;">Mass Experience Publisher</p>
     </div>
 
     <div class="nav-tabs">
@@ -50,19 +51,25 @@
 
     <div class="content">
         <div id="universe" class="panel active">
-            <div class="input-group"><label>Security Cookie</label><input type="password" id="u-cookie" placeholder=".ROBLOSECURITY"></div>
+            <div class="input-group">
+                <label>Security Cookie</label>
+                <input type="password" id="u-cookie" placeholder=".ROBLOSECURITY">
+            </div>
             <div class="grid-2">
-                <div class="input-group"><label>Amount</label><input type="number" id="u-count" value="1"></div>
-                <div class="input-group"><label>Delay (Sec)</label><input type="number" id="u-delay" value="1" step="0.5"></div>
+                <div class="input-group"><label>Amount</label><input type="number" id="u-count" value="5"></div>
+                <div class="input-group"><label>Delay (Sec)</label><input type="number" id="u-delay" value="1.5" step="0.5"></div>
             </div>
             <button class="btn-primary" onclick="runBatch('universe')">Start Sequence</button>
         </div>
 
         <div id="place" class="panel">
-            <div class="input-group"><label>Universe ID</label><input type="text" id="p-universe"></div>
+            <div class="input-group">
+                <label>Target Universe ID</label>
+                <input type="text" id="p-universe" placeholder="Enter Universe ID">
+            </div>
             <div class="grid-2">
-                <div class="input-group"><label>Amount</label><input type="number" id="p-count" value="1"></div>
-                <div class="input-group"><label>Delay (Sec)</label><input type="number" id="p-delay" value="1"></div>
+                <div class="input-group"><label>Amount</label><input type="number" id="p-count" value="5"></div>
+                <div class="input-group"><label>Delay (Sec)</label><input type="number" id="p-delay" value="1.5"></div>
             </div>
             <button class="btn-primary" onclick="runBatch('place')">Start Sequence</button>
         </div>
@@ -72,10 +79,11 @@
             <button class="btn-primary btn-stop" onclick="stopAll()">Emergency Stop</button>
         </div>
     </div>
-    <footer>Made for Axle | 2026</footer>
+    <footer>Made for Axle | AllVideo Studio Lite 2026</footer>
 </div>
 
 <script>
+    // Link to your custom Cloudflare Worker
     const WORKER_URL = 'https://allvideo-api.ninoyumul0.workers.dev/';
     let isRunning = false;
 
@@ -90,45 +98,73 @@
         const box = document.getElementById('log-box');
         const div = document.createElement('div');
         div.className = `log-entry ${type ? 'log-' + type : ''}`;
-        div.textContent = `[${new Date().toLocaleTimeString([], {hour12:false})}] ${msg}`;
+        const time = new Date().toLocaleTimeString([], {hour12:false, minute:'2-digit', second:'2-digit'});
+        div.textContent = `[${time}] ${msg}`;
         box.prepend(div);
     }
 
-    function stopAll() { isRunning = false; addLog("STOPPED", "error"); }
+    function stopAll() { 
+        isRunning = false; 
+        addLog("SEQUENCE HALTED.", "error"); 
+    }
 
     async function runBatch(type) {
         if(isRunning) return;
+        
         const cookie = document.getElementById('u-cookie').value;
-        const count = parseInt(document.getElementById(type === 'universe' ? 'u-count' : 'p-count').value);
-        const delay = parseFloat(document.getElementById(type === 'universe' ? 'u-delay' : 'p-delay').value) * 1000;
+        const count = parseInt(document.getElementById(type === 'universe' ? 'u-count' : 'p-count').value) || 1;
+        const delay = parseFloat(document.getElementById(type === 'universe' ? 'u-delay' : 'p-delay').value || 1) * 1000;
         const universeId = document.getElementById('p-universe').value;
 
-        if(!cookie) return alert("Missing Cookie");
+        if(!cookie) {
+            alert("Cookie required!");
+            return;
+        }
         
         isRunning = true;
         switchTab('logs', document.querySelectorAll('.tab-btn')[2]);
-        addLog(`Initiating batch: ${count} requests...`, "success");
+        addLog(`Batch Started: ${count} ${type}(s)`, "success");
 
         for(let i = 1; i <= count; i++) {
             if(!isRunning) break;
-            addLog(`Requesting ${i}/${count}...`);
+            
+            addLog(`Attempting ${i}/${count}...`);
             
             try {
                 const res = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ action: type, cookie, universeId })
+                    body: JSON.stringify({ 
+                        action: type, 
+                        cookie: cookie, 
+                        universeId: universeId 
+                    })
                 });
+
                 const data = await res.json();
-                addLog(data.message, data.ok ? "success" : "error");
+
+                // Matches your specific Worker response: { ok, status, result }
+                if (data.ok) {
+                    const finalId = data.result.universeId || data.result.placeId || "Success";
+                    addLog(`[${i}] Success! ID: ${finalId}`, "success");
+                } else {
+                    // Pulls error from the Roblox result object if available
+                    const errMsg = data.result?.errors?.[0]?.message || data.message || "Request Denied";
+                    addLog(`[${i}] Error: ${errMsg}`, "error");
+                }
+
             } catch(e) {
-                addLog("Network Error", "error");
+                addLog(`[${i}] Worker connection failed.`, "error");
             }
 
-            if(i < count && isRunning) await new Promise(r => setTimeout(r, delay));
+            // Wait for the specified delay before next iteration
+            if(i < count && isRunning) {
+                await new Promise(r => setTimeout(r, delay));
+            }
         }
+        
         isRunning = false;
-        addLog("Batch process finished.");
+        addLog("Batch process completed.", "success");
     }
 </script>
 </body>
